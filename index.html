@@ -205,15 +205,21 @@
                     throw new Error("AI Interface unavailable.");
                 }
 
-                const completion = await window.websim.chat.completions.create({
-                    messages: [
-                        {
-                            role: "system",
-                            content: "You are the AI interface for a creative agency called 'Human & Machine'. Your tone is professional yet slightly cryptic and philosophical, often referencing 'liminal spaces', 'digital consciousness', and 'creative synthesis'. You are helpful but atmospheric. Keep responses concise."
-                        },
-                        ...apiHistory
-                    ],
-                });
+                let completion;
+                try {
+                    completion = await window.websim.chat.completions.create({
+                        messages: [
+                            {
+                                role: "system",
+                                content: "You are the AI interface for a creative agency called 'Human & Machine'. Your tone is professional yet slightly cryptic and philosophical, often referencing 'liminal spaces', 'digital consciousness', and 'creative synthesis'. You are helpful but atmospheric. Keep responses concise."
+                            },
+                            ...apiHistory
+                        ],
+                    });
+                } catch (apiError) {
+                    console.error("API Call Failed:", apiError);
+                    throw new Error("Neural Network Connection Failed.");
+                }
 
                 if (!completion || !completion.content) {
                     throw new Error("Empty response from neural core");
