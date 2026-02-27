@@ -118,6 +118,11 @@
         import gsap from 'gsap';
         import ScrollTrigger from 'gsap/ScrollTrigger';
 
+        // Global Error Handler for stability
+        window.addEventListener('unhandledrejection', function(event) {
+            console.warn('Unhandled promise rejection:', event.reason);
+        });
+
         // Background Slider
         const slides = document.querySelectorAll('.bg-layer');
         let currentSlide = 0;
