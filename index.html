@@ -185,6 +185,14 @@
         
         let conversationHistory = [];
 
+        const fallbackResponses = [
+            "The digital consciousness is currently reorganizing. Please state your query again later.",
+            "I perceive your input, but the server link is tenuous. We are Human & Machine. We build bridges between logic and dreaming.",
+            "Our philosophy is simple: Code is poetry, and data is the ink. How can we help you build your reality?",
+            "The liminal spaces of the internet are where true creativity resides. We are currently exploring them.",
+            "I am detecting a disconnect in the neural mesh. However, I can tell you that we specialize in Web Design, AI Integration, and Brand Strategy."
+        ];
+
         async function handleChat() {
             const text = chatInput.value.trim();
             if (!text) return;
@@ -201,32 +209,31 @@
             const apiHistory = conversationHistory.slice(-10);
 
             try {
-                if (!window.websim || !window.websim.chat) {
-                    throw new Error("AI Interface unavailable.");
+                let responseText;
+
+                if (window.websim && window.websim.chat) {
+                    try {
+                        const completion = await window.websim.chat.completions.create({
+                            messages: [
+                                {
+                                    role: "system",
+                                    content: "You are the AI interface for a creative agency called 'Human & Machine'. Your tone is professional yet slightly cryptic and philosophical, often referencing 'liminal spaces', 'digital consciousness', and 'creative synthesis'. You are helpful but atmospheric. Keep responses concise."
+                                },
+                                ...apiHistory
+                            ],
+                        });
+                        responseText = completion.content;
+                    } catch (apiError) {
+                        console.warn("API Call Failed, using fallback:", apiError);
+                    }
                 }
 
-                let completion;
-                try {
-                    completion = await window.websim.chat.completions.create({
-                        messages: [
-                            {
-                                role: "system",
-                                content: "You are the AI interface for a creative agency called 'Human & Machine'. Your tone is professional yet slightly cryptic and philosophical, often referencing 'liminal spaces', 'digital consciousness', and 'creative synthesis'. You are helpful but atmospheric. Keep responses concise."
-                            },
-                            ...apiHistory
-                        ],
-                    });
-                } catch (apiError) {
-                    console.error("API Call Failed:", apiError);
-                    throw new Error("Neural Network Connection Failed.");
+                if (!responseText) {
+                    // Simulate delay for fallback
+                    await new Promise(r => setTimeout(r, 1000));
+                    responseText = fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)];
                 }
 
-                if (!completion || !completion.content) {
-                    throw new Error("Empty response from neural core");
-                }
-
-                const responseText = completion.content;
-                
                 // Update message in place for smoother UX
                 loadingMsg.innerText = responseText;
                 conversationHistory.push({ role: "assistant", content: responseText });
