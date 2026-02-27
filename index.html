@@ -202,47 +202,46 @@
             chatInput.value = '';
             
             // Loading state
-            const loadingMsg = addMessage('Processing...', 'ai');
+            const loadingMsg = addMessage('Thinking...', 'ai');
 
             // Prepare history for API
             conversationHistory.push({ role: "user", content: text });
-            const apiHistory = conversationHistory.slice(-10);
+            
+            // Keep history manageable
+            const apiHistory = conversationHistory.slice(-6);
 
             try {
                 let responseText;
 
-                if (window.websim && window.websim.chat) {
-                    try {
-                        const completion = await window.websim.chat.completions.create({
-                            messages: [
-                                {
-                                    role: "system",
-                                    content: "You are the AI interface for a creative agency called 'Human & Machine'. Your tone is professional yet slightly cryptic and philosophical, often referencing 'liminal spaces', 'digital consciousness', and 'creative synthesis'. You are helpful but atmospheric. Keep responses concise."
-                                },
-                                ...apiHistory
-                            ],
-                        });
-                        responseText = completion.content;
-                    } catch (apiError) {
-                        console.warn("API Call Failed, using fallback:", apiError);
-                    }
+                // Check environment
+                if (typeof websim === 'undefined' || !websim.chat) {
+                    throw new Error("Chat module offline.");
                 }
 
-                if (!responseText) {
-                    // Simulate delay for fallback
-                    await new Promise(r => setTimeout(r, 1000));
-                    responseText = fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)];
-                }
+                const completion = await websim.chat.completions.create({
+                    messages: [
+                        {
+                            role: "system",
+                            content: "You are the AI interface for a creative agency called 'Human & Machine'. Your tone is professional yet slightly cryptic and philosophical, often referencing 'liminal spaces', 'digital consciousness', and 'creative synthesis'. You are helpful but atmospheric. Keep responses concise and under 50 words."
+                        },
+                        ...apiHistory
+                    ],
+                });
+                
+                responseText = completion.content;
+                
+                if (!responseText) throw new Error("Empty response from core.");
 
-                // Update message in place for smoother UX
+                // Update message in place
                 loadingMsg.innerText = responseText;
                 conversationHistory.push({ role: "assistant", content: responseText });
 
             } catch (err) {
                 console.error("Chat Error:", err);
-                loadingMsg.innerText = "Error: " + (err.message || "Neural Link Unstable. Try again.");
-                loadingMsg.style.color = "#ff5555";
-                loadingMsg.style.borderColor = "#ff5555";
+                // Fallback only on explicit error to avoid breaking flow completely, but mark it
+                const fallback = fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)];
+                loadingMsg.innerText = fallback + " [OFFLINE MODE]";
+                loadingMsg.style.opacity = "0.7";
             }
         }
 
