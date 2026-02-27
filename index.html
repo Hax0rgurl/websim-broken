@@ -213,12 +213,12 @@
             try {
                 let responseText;
 
-                // Check environment via window for module safety
-                if (!window.websim || !window.websim.chat) {
+                // Check environment
+                if (typeof websim === 'undefined' || !websim.chat) {
                     throw new Error("Chat module offline.");
                 }
 
-                const completion = await window.websim.chat.completions.create({
+                const completion = await websim.chat.completions.create({
                     messages: [
                         {
                             role: "system",
