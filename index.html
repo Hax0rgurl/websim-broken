@@ -201,7 +201,11 @@
             const apiHistory = conversationHistory.slice(-10);
 
             try {
-                const completion = await websim.chat.completions.create({
+                if (!window.websim || !window.websim.chat) {
+                    throw new Error("AI Interface unavailable.");
+                }
+
+                const completion = await window.websim.chat.completions.create({
                     messages: [
                         {
                             role: "system",
@@ -223,7 +227,7 @@
 
             } catch (err) {
                 console.error("Chat Error:", err);
-                loadingMsg.innerText = "Error: Neural Link Unstable. Try again.";
+                loadingMsg.innerText = "Error: " + (err.message || "Neural Link Unstable. Try again.");
                 loadingMsg.style.color = "#ff5555";
                 loadingMsg.style.borderColor = "#ff5555";
             }
