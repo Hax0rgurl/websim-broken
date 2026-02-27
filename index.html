@@ -5,8 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Human & Machine | Creative Agency</title>
     <link rel="stylesheet" href="css2.css">
-    <script src="https://esm.sh/gsap@3.12.5"></script>
-    <script src="https://esm.sh/gsap@3.12.5/ScrollTrigger"></script>
+    <script type="importmap">
+        {
+            "imports": {
+                "gsap": "https://esm.sh/gsap@3.12.5",
+                "gsap/ScrollTrigger": "https://esm.sh/gsap@3.12.5/ScrollTrigger"
+            }
+        }
+    </script>
     <style>
         :root {
             --bg-color: #0a0a0a;
@@ -419,7 +425,10 @@
         <p>&copy; 2023 Human & Machine. All rights reserved. <br> San Francisco / Cloud</p>
     </footer>
 
-    <script>
+    <script type="module">
+        import gsap from 'gsap';
+        import ScrollTrigger from 'gsap/ScrollTrigger';
+
         // Background Slider
         const slides = document.querySelectorAll('.bg-layer');
         let currentSlide = 0;
