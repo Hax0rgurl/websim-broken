@@ -211,16 +211,21 @@
                     ],
                 });
 
+                if (!completion || !completion.content) {
+                    throw new Error("Empty response from neural core");
+                }
+
                 const responseText = completion.content;
                 
-                // Remove loading message and add actual response
-                loadingMsg.remove();
-                addMessage(responseText, 'ai');
+                // Update message in place for smoother UX
+                loadingMsg.innerText = responseText;
                 conversationHistory.push({ role: "assistant", content: responseText });
 
             } catch (err) {
-                loadingMsg.innerText = "Error: Connection interrupted.";
-                console.error(err);
+                console.error("Chat Error:", err);
+                loadingMsg.innerText = "Error: Neural Link Unstable. Try again.";
+                loadingMsg.style.color = "#ff5555";
+                loadingMsg.style.borderColor = "#ff5555";
             }
         }
 
